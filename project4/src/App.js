@@ -1,84 +1,103 @@
-import React, { useRef, useState } from 'react';
-import UserList from './compo/UserList';
-import CreateUser from './compo/CreateUser';
+import React, { useState } from 'react';
+import Header from './compo/Header';
+import Nav from './compo/Nav';
+import Article from './compo/Article';
+import Create from './compo/Create';
+import Update from './compo/Update';
 
-const App = () => {
-    const [inputs, setInputs] = useState({
-        username: '',
-        email: ''
-    });
 
-    const { username, email } = inputs;
-
-    const onChange = e => {
-        const { name, value } = e.target;
-        setInputs({
-            ...inputs,
-            [name]: value
-        });
-    };
-
-    const [users, setUsers] = useState([
-        {
-            id: 1,
-            username: 'velopert',
-            email: 'public.velopoert@gmail.com',
-            active: true
-        },
-        {
-            id: 2,
-            username: 'tester',
-            email: 'tester@example.com',
-            active:false
-        },
-        {
-            id: 3,
-            username: 'liz',
-            email: 'liz@example.com',
-            active:false
+function App() {
+    // const _mode= useState('Welcome'); //useState인자 : 상태 초깃값
+    // console.log('_mode', _mode); //['Welcome', f()]
+    // const mode = _mode[0]; //상태값 읽어오기
+    // const setMode = _mode[1]; //상태값 변경 함수
+    const [mode, setMode] = useState('Welcome');
+    const [id, setId] = useState(null); //초깃값 없음
+    const [nextId, setNextId] = useState(4);
+    const [topics, setTopics] = useState([
+        { id: 1, title: 'html', body: 'html is ...' },
+        { id: 2, title: 'css', body: 'css is ...' },
+        { id: 3, title: 'javascript', body: 'javascript is ...' }
+    ])
+    let content = null;
+    let contextControl = null;
+    if (mode === 'Welcome') {
+        content = <Article title="Welcome" body="Hello, WEB"></Article>
+    } else if (mode === 'READ') {
+        let title, body = null; //초기화
+        for (let i = 0; i < topics.length; i++) {
+            if (topics[i].id === id) { //state의 id와 일치하는 값을 찾아서 title, body 지정
+                title = topics[i].title;
+                body = topics[i].body;
+            }
         }
-    ]);
-
-    const nextId = useRef(4); //useRef()의 파라미터 -> .current의 기본값
-    const onCreate = () => {
-        const user = {
-            id:nextId.current,
-            username,
-            email
-        };
-
-        //배열 변화 -> 기존 배열 복사(spread 또는 concat) 후 추가(불변성)
-        //setUsers(users.concat(user)); //concat 사용(배열이름.concat(합치고싶은배열))
-        setUsers([...users, user]); //spread 사용
-
-        setInputs({ //input값 초기화
-            username: '',
-            email: ''
-        });
-        nextId.current += 1;
-    };
-
-    const onRemove = id => {
-        //id가 일치하지 않는 원소만 추출해서 새로운 배열로 만들기(불변성)
-        setUsers(users.filter(user => user.id !== id));
-    };
-
-    const onToggle = id => {
-        setUsers(
-            //배열 업데이트(map()) : id가 다르면 그대로 두고, id가 같다면 active값 반전
-            users.map(user => user.id === id ? {...user, active:!user.active} : user)
-        )
+        content = <Article title={title} body={body}></Article>
+        contextControl = <>
+            <li><a href={"/update" + id} onClick={event => {
+                event.preventDefault();
+                setMode('UPDATE');
+            }}>Update</a></li>
+            <li><input type="button" value="Delete" onClick={() => {
+                const newTopics = []
+                for (let i = 0; i < topics.length; i++) {
+                    if (topics[i].id !== id) {
+                        newTopics.push(topics[i]);
+                    }
+                }
+                setTopics(newTopics);
+                setMode('Welcome');
+            }} /></li>
+        </>
+    } else if (mode === 'CREATE') {
+        content = <Create onCreate={(_title, _body) => {
+            const newTopic = { id: nextId, title: _title, body: _body }
+            const newTopics = [...topics]
+            newTopics.push(newTopic);
+            setTopics(newTopics);
+            setMode('READ');
+            setId(nextId);
+            setNextId(nextId + 1);
+        }}></Create>
+    } else if (mode === 'UPDATE') {
+        let title, body = null;
+        for (let i = 0; i < topics.length; i++) {
+            if (topics[i].id === id) {
+                title = topics[i].title;
+                body = topics[i].body;
+            }
+        }
+        content = <Update title={title} body={body} onUpdate={(title, body) => {
+            //업데이트된 값으로 변경하기
+            const newTopics = [...topics]
+            const updatedTopic = { id: id, title: title, body: body }
+            for (let i = 0; i < newTopics.length; i++) {
+                if (newTopics[i].id === id) {
+                    newTopics[i] = updatedTopic; //업데이트
+                    break;
+                }
+            }
+            setTopics(newTopics);
+            setMode('READ');
+        }}></Update>
     }
     return (
-        <>
-            <CreateUser
-                username={username}
-                email={email}
-                onChange={onChange}
-                onCreate={onCreate}
-            />
-            <UserList users={users} onRemove={onRemove} onToggle={onToggle}/>
-        </>
+        <div>
+            <Header title="WEB" onChangeMode={() => {
+                setMode('Welcome');
+            }}></Header>
+            <Nav topics={topics} onChangeMode={(_id) => {
+                setMode('READ');
+                setId(_id);
+            }}></Nav>
+            {content}
+            <ul>
+                <li><a href="/create" onClick={event => {
+                    event.preventDefault();
+                    setMode('CREATE');
+                }}>Create</a></li>
+                {contextControl}
+            </ul>
+        </div>
     );
 }
 
