@@ -1,15 +1,18 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
-import App from './App';
+// import App from './App';
 import reportWebVitals from './reportWebVitals';
-import Counter from './compo/Counter';
-import InputSample from './compo/InputSample';
+// import UserList from './compo/UserList';
+// import Counter from './compo/Counter';
+import App2 from './App2';
+import Hello from './compo/Hello';
+import CounterClass from './compo/CounterClass';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <InputSample />
+    <CounterClass />
   </React.StrictMode>
 );
 

@@ -1,0 +1,27 @@
+1. 'TodoInsert' refers to a value, but is being used as a type here. Did you mean 'typeof TodoInsert'?
+    - 확장자명을 .ts로 했을 때 HTML 코드 부분에서 발생하는 에러
+    => .tsx로 확장자명 변경
+
+2. typescript 프로젝트 생성 명령어
+    - npx create-react-app 프로젝트명 --template typescript
+
+3. const root = ReactDOM.createRoot(
+  document.getElementById("root") as HTMLElement
+);
+    - as HTMLElement 가 없으면 아래의 render에서 에러 발생
+
+4. npm add typesafe-actions
+    - 리덕스 사용 프로젝트에서 액션 생성 함수와 리듀서를 쉽고 깔끔하게 작성할 수 있게 해주는 라이브러리
+
+5. createStandardAction 은 deprecated(더이상 사용되지 않음)
+    - typesafe-actions 최신 버전 사용 시(5.1.0) 에러 / 4.4.2 버전에서는 실습 가능
+    => createAction으로 사용
+        - 사용법 참고 : https://github.com/piotrwitek/typesafe-actions
+
+6. Parameter 'state' implicitly has an 'any' type.
+    - 함수의 파라미터가 any의 암시적인 타입을 가질 때 발생하는 에러
+    => :any나 구체적인 타입을 명시적으로 설정
+
+7. 'todos.ts' cannot be compiled under '--isolatedModules' because it is considered a global script file. Add an import, export, or an empty 'export {}' statement to make it a module.
+    - 빈 ts 파일에서 발생하는 에러
+    => export {}를 적어주면 해결
